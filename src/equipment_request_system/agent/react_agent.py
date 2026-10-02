@@ -10,7 +10,7 @@ from openai import AsyncOpenAI
 
 from equipment_request_system.agent.client import EquipmentMCPClient
 from equipment_request_system.agent.prompts import SYSTEM_PROMPT, build_request_prompt
-from equipment_request_system.agent.reflection import reflect_draft
+from equipment_request_system.agent.reflection import reflect_draft, should_queue_review
 from equipment_request_system.config import settings
 from equipment_request_system.domain.models import AgentResult, Decision, TraceStep
 
@@ -57,6 +57,44 @@ def _parse_final(text: str) -> tuple[Decision, str]:
     return Decision(match.group(1).lower()), match.group(2).strip()
 
 
+async def _queue_human_review(
+    mcp_client: EquipmentMCPClient,
+    *,
+    employee_id: str,
+    request: str,
+    reason: str,
+    request_id: str,
+    trace: list[TraceStep],
+) -> dict[str, object]:
+    observation = await mcp_client.call_tool(
+        "flag_for_human_review",
+        {
+            "employee_id": employee_id,
+            "request": request,
+            "reason": reason,
+            "request_id": request_id,
+        },
+    )
+    trace.append(
+        TraceStep(
+            step=len(trace) + 1,
+            reason=(
+                "Thought: this case is ambiguous and needs a human. "
+                f"Action: flag_for_human_review(employee_id={employee_id!r})"
+            ),
+            tool="flag_for_human_review",
+            arguments={
+                "employee_id": employee_id,
+                "request": request,
+                "reason": reason,
+                "request_id": request_id,
+            },
+            observation=observation,
+        )
+    )
+    return observation
+
+
 async def run_agent(
     employee_id: str,
     request: str,
@@ -93,6 +131,19 @@ async def run_agent(
         if not calls:
             decision, draft = _parse_final(response.output_text)
             decision, draft, reflection = reflect_draft(decision, draft, trace)
+            if should_queue_review(decision, trace):
+                await _queue_human_review(
+                    mcp_client,
+                    employee_id=employee_id,
+                    request=request,
+                    reason=draft,
+                    request_id=request_id,
+                    trace=trace,
+                )
+                reflection = (
+                    "Corrected: the draft was escalated without queuing; "
+                    "flag_for_human_review was called."
+                )
             return AgentResult(
                 decision=decision,
                 response=draft,
@@ -108,7 +159,10 @@ async def run_agent(
             trace.append(
                 TraceStep(
                     step=len(trace) + 1,
-                    reason=f"The agent selected {call.name} to gather or act on request evidence.",
+                    reason=(
+                        f"Thought: I need {call.name} to investigate. "
+                        f"Action: {call.name}({arguments})"
+                    ),
                     tool=call.name,
                     arguments=arguments,
                     observation=observation,
@@ -132,23 +186,13 @@ async def run_agent(
             extra_body={"think": False},
         )
 
-    escalation = await mcp_client.call_tool(
-        "flag_for_human_review",
-        {
-            "employee_id": employee_id,
-            "request": request,
-            "reason": f"The agent exceeded its {settings.agent_max_steps}-step limit.",
-            "request_id": request_id,
-        },
-    )
-    trace.append(
-        TraceStep(
-            step=len(trace) + 1,
-            reason="Safety limit reached; the request must be reviewed by a human.",
-            tool="flag_for_human_review",
-            arguments={"employee_id": employee_id, "request_id": request_id},
-            observation=escalation,
-        )
+    await _queue_human_review(
+        mcp_client,
+        employee_id=employee_id,
+        request=request,
+        reason=f"The agent exceeded its {settings.agent_max_steps}-step limit.",
+        request_id=request_id,
+        trace=trace,
     )
     return AgentResult(
         decision=Decision.ESCALATED,

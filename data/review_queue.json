@@ -1,3 +1,31 @@
 {
-  "requests": []
+  "requests": [
+    {
+      "review_id": "REV-E2890399",
+      "request_id": "REQ-6261D757CF",
+      "employee_id": "E999",
+      "request": "I need a monitor.",
+      "reason": "The employee ID E999 was not found in our system. Please verify the employee ID and resubmit the request.",
+      "status": "pending",
+      "created_at": "2026-10-02T20:50:12.609648Z"
+    },
+    {
+      "review_id": "REV-A382C715",
+      "request_id": "REQ-8D86641DB6",
+      "employee_id": "E001",
+      "request": "I need a color-calibrated medical-grade monitor.",
+      "reason": "The policy does not cover item 'medical-grade monitor'.",
+      "status": "pending",
+      "created_at": "2026-10-02T20:50:21.160514Z"
+    },
+    {
+      "review_id": "REV-9E343AFB",
+      "request_id": "REQ-FA40C94668",
+      "employee_id": "E001",
+      "request": "I need a color-calibrated medical-grade monitor.",
+      "reason": "The policy does not cover item 'medical-grade monitor'.",
+      "status": "pending",
+      "created_at": "2026-10-02T21:21:57.543889Z"
+    }
+  ]
 }

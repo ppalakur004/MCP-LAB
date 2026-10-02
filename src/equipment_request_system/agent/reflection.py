@@ -3,19 +3,26 @@ from __future__ import annotations
 from equipment_request_system.domain.models import Decision, TraceStep
 
 
+def _last_observation(trace: list[TraceStep], tool: str) -> dict[str, object] | None:
+    return next((step.observation for step in reversed(trace) if step.tool == tool), None)
+
+
+def should_queue_review(decision: Decision, trace: list[TraceStep]) -> bool:
+    if _last_observation(trace, "flag_for_human_review") is not None:
+        return False
+    if decision == Decision.ESCALATED:
+        return True
+    eligibility = _last_observation(trace, "check_request_eligibility")
+    return bool(eligibility and eligibility.get("decision") == Decision.ESCALATED.value)
+
+
 def reflect_draft(
     decision: Decision,
     response: str,
     trace: list[TraceStep],
 ) -> tuple[Decision, str, str]:
-    eligibility = next(
-        (step.observation for step in reversed(trace) if step.tool == "check_request_eligibility"),
-        None,
-    )
-    review = next(
-        (step.observation for step in reversed(trace) if step.tool == "flag_for_human_review"),
-        None,
-    )
+    eligibility = _last_observation(trace, "check_request_eligibility")
+    review = _last_observation(trace, "flag_for_human_review")
 
     if eligibility and eligibility.get("decision") == Decision.ESCALATED.value and not review:
         corrected = (

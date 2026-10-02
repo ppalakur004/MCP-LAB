@@ -48,3 +48,27 @@ def test_escalates_when_role_has_no_policy(mock_data_dir):
     )
 
     assert result["decision"] == "escalated"
+
+
+def test_escalates_when_item_not_in_policy(mock_data_dir):
+    result = check_request_eligibility(
+        "E100",
+        "medical-grade monitor",
+        mock_data_dir / "employees.json",
+        mock_data_dir / "policies.json",
+    )
+
+    assert result["decision"] == "escalated"
+    assert "does not cover" in result["reason"]
+
+
+def test_approves_when_refresh_period_reached(mock_data_dir):
+    result = check_request_eligibility(
+        "E200",
+        "laptop",
+        mock_data_dir / "employees.json",
+        mock_data_dir / "policies.json",
+        as_of=date(2029, 1, 1),
+    )
+
+    assert result["decision"] == "approved"
