@@ -1,8 +1,48 @@
 # MCP Equipment Request Lab
 
-Starter project structure for the mock IT equipment request MCP server and ReAct agent.
+Mock IT equipment request MCP server and ReAct agent.
 
-Application code has intentionally not been implemented yet.
+The project now includes a working MCP server, MCP client, ReAct agent, mock data, tests, CLI,
+demonstration script, bounded retries, and CI configuration.
+
+## Setup
+
+Open the repository in its development container, then create a local environment file:
+
+```bash
+cp .env.example .env
+```
+
+Install Ollama on the host and download the local Qwen model:
+
+```bash
+ollama pull qwen3:8b
+```
+
+The default development-container URL is `http://host.docker.internal:11434/v1`. If the Python
+application runs directly on the host instead, set `OLLAMA_BASE_URL=http://localhost:11434/v1`.
+Ollama's `think` option is disabled by the agent on every request.
+
+Verify the MCP connection without calling the model:
+
+```bash
+python scripts/verify_connection.py
+```
+
+Run one request:
+
+```bash
+python -m equipment_request_system.cli \
+  --employee-id E001 \
+  --request "I need a second monitor"
+```
+
+Run the four rubric demonstrations and the tests:
+
+```bash
+python scripts/run_demo.py
+pytest
+```
 
 ## Project structure
 
@@ -62,7 +102,8 @@ Application code has intentionally not been implemented yet.
 │       ├── test_check_request_eligibility.py
 │       ├── test_flag_for_human_review.py
 │       ├── test_get_employee_info.py
-│       └── test_get_policy_limits.py
+│       ├── test_get_policy_limits.py
+│       └── test_reflection.py
 ├── .env.example
 ├── .gitignore
 ├── LICENSE

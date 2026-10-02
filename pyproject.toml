@@ -1,1 +1,38 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
 
+[project]
+name = "equipment-request-system"
+version = "0.1.0"
+description = "MCP equipment request server and ReAct agent lab"
+requires-python = ">=3.12"
+dependencies = [
+  "mcp[cli]>=2.0,<3",
+  "openai>=2.0,<3",
+  "pydantic>=2.8,<3",
+  "python-dotenv>=1.0,<2",
+]
+
+[project.scripts]
+equipment-request = "equipment_request_system.cli:main"
+equipment-mcp-server = "equipment_request_system.server.app:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-markers"
+testpaths = ["tests"]
+pythonpath = ["src"]
+markers = ["integration: exercises the MCP protocol"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["equipment_request_system"]

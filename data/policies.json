@@ -1,1 +1,25 @@
-
+{
+  "roles": {
+    "standard_employee": {
+      "equipment": {
+        "laptop": {"maximum_quantity": 1, "replacement_years": 4},
+        "monitor": {"maximum_quantity": 1, "replacement_years": 3},
+        "keyboard": {"maximum_quantity": 1, "replacement_years": 2}
+      }
+    },
+    "software_engineer": {
+      "equipment": {
+        "laptop": {"maximum_quantity": 1, "replacement_years": 3},
+        "monitor": {"maximum_quantity": 2, "replacement_years": 3},
+        "keyboard": {"maximum_quantity": 1, "replacement_years": 2}
+      }
+    },
+    "manager": {
+      "equipment": {
+        "laptop": {"maximum_quantity": 1, "replacement_years": 2},
+        "monitor": {"maximum_quantity": 2, "replacement_years": 3},
+        "keyboard": {"maximum_quantity": 1, "replacement_years": 2}
+      }
+    }
+  }
+}

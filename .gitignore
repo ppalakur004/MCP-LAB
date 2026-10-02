@@ -13,3 +13,5 @@ venv/
 build/
 dist/
 artifacts/generated/
+artifacts/submission/
+.coverage.*

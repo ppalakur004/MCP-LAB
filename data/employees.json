@@ -1,1 +1,41 @@
-
+{
+  "employees": [
+    {
+      "employee_id": "E001",
+      "name": "Avery Chen",
+      "role": "software_engineer",
+      "hire_date": "2021-02-15",
+      "equipment": [
+        {"asset_id": "LT-1001", "item": "laptop", "issued_date": "2022-01-15", "status": "active"},
+        {"asset_id": "MN-1001", "item": "monitor", "issued_date": "2024-06-01", "status": "active"}
+      ]
+    },
+    {
+      "employee_id": "E002",
+      "name": "Jordan Patel",
+      "role": "standard_employee",
+      "hire_date": "2024-03-01",
+      "equipment": [
+        {"asset_id": "LT-1002", "item": "laptop", "issued_date": "2025-03-01", "status": "active"},
+        {"asset_id": "MN-1002", "item": "monitor", "issued_date": "2025-03-01", "status": "active"}
+      ]
+    },
+    {
+      "employee_id": "E003",
+      "name": "Morgan Rivera",
+      "role": "manager",
+      "hire_date": "2018-07-10",
+      "equipment": [
+        {"asset_id": "LT-1003", "item": "laptop", "issued_date": "2021-05-10", "status": "active"},
+        {"asset_id": "MN-1003", "item": "monitor", "issued_date": "2023-05-10", "status": "active"}
+      ]
+    },
+    {
+      "employee_id": "E004",
+      "name": "Sam Okafor",
+      "role": "contractor",
+      "hire_date": "2025-08-01",
+      "equipment": []
+    }
+  ]
+}
